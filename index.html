@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serenity Haven Guest House | Luxury Boutique Accommodation</title>
+    <meta name="description" content="Experience unparalleled luxury at Serenity Haven Guest House. 30 unique suites, world-class dining, spa treatments, and breathtaking views.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- GSAP for Premium Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    
+    <!-- Three.js for 3D Experiences -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Lenis Smooth Scroll -->
+    <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'luxury-gold': '#D4AF37',
+                        'luxury-cream': '#F5F5DC',
+                        'luxury-dark': '#1A1A1A',
+                        'luxury-charcoal': '#2C2C2C',
+                        'sage': '#9CAF88',
+                        'terracotta': '#E2725B'
+                    },
+                    fontFamily: {
+                        'serif': ['Playfair Display', 'serif'],
+                        'sans': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+        
+        /* Custom Cursor */
+        .custom-cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #D4AF37;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.2s;
+            mix-blend-mode: difference;
+        }
+        
+        .cursor-dot {
+            width: 4px;
+            height: 4px;
+            background: #D4AF37;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        
+        /* Grain Overlay */
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        
+        /* Text Reveal Animation */
+        .reveal-text {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+        }
+        
+        .char {
+            display: inline-block;
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        
+        /* Magnetic Button */
+        .magnetic-btn {
+            transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        /* Parallax Container */
+        .parallax-container {
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* WebGL Canvas */
+        #webgl-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        /* Scroll Progress */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #D4AF37, #9CAF88);
+            z-index: 10000;
+            transform-origin: left;
+            transform: scaleX(0);
+        }
+        
+        /* Image Hover Effect */
+        .img-reveal {
+            clip-path: inset(0 100% 0 0);
+            transition: clip-path 1s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        
+        .img-reveal.active {
+            clip-path: inset(0 0 0 0);
+        }
+        
+        /* Navigation */
+        .nav-hidden {
+            transform: translateY(-100%);
+        }
+        
+        .nav-visible {
+            transform: translateY(0);
+        }
+        
+        /* Page Transition */
+        .page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1A1A1A;
+            z-index: 9999;
+            transform: translateY(100%);
+        }
+        
+        /* Luxury Card Hover */
+        .luxury-card {
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .luxury-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+        }
+        
+        /* Video Background */
+        .video-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+        }
+        
+        /* Split Screen */
+        .split-screen {
+            display: grid;
+            grid-template-columns: 50% 50%;
+            min-height: 100vh;
+        }
+        
+        @media (max-width: 768px) {
+            .split-screen {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Gallery Grid */
+        .masonry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            grid-auto-rows: masonry;
+        }
+        
+        /* Booking Widget */
+        .booking-widget {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Loader */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1A1A1A;
+            z-index: 10001;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease;
+        }
+        
+        .loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        /* 3D Tilt Effect */
+        .tilt-card {
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+        }
+        
+        .tilt-content {
+            transform: translateZ(50px);
+        }
+    </style>
+</head>
+<body class="bg-luxury-dark text-white overflow-x-hidden">
+
+    <!-- Loading Screen -->
+    <div class="loader" id="loader">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-6xl font-serif text-luxury-gold mb-4 tracking-widest">SERENITY HAVEN</h1>
+            <div class="w-48 h-0.5 bg-gray-700 mx-auto overflow-hidden">
+                <div class="h-full bg-luxury-gold w-0 transition-all duration-2000" id="loader-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="custom-cursor hidden md:block" id="cursor"></div>
+    <div class="cursor-dot hidden md:block" id="cursor-dot"></div>
+    
+    <!-- Grain Overlay -->
+    <div class="grain-overlay"></div>
+    
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scroll-progress"></div>
+    
+    <!-- WebGL Background Canvas -->
+    <canvas id="webgl-canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav id="main-nav" class="fixed top-0 left-0 w-full z-50 transition-transform duration-500 nav-hidden bg-luxury-dark/90 backdrop-blur-md border-b border-white/10">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <a href="#" class="text-2xl font-serif text-luxury-gold tracking-wider">SERENITY HAVEN</a>
+                
+                <div class="hidden md:flex space-x-8 items-center">
+                    <a href="#suites" class="text-sm tracking-widest hover:text-luxury-gold transition-colors">SUITES</a>
+                    <a href="#dining" class="text-sm tracking-widest hover:text-luxury-gold transition-colors">DINING</a>
+                    <a href="#spa" class="text-sm tracking-widest hover:text-luxury-gold transition-colors">SPA</a>
+                    <a href="#experiences" class="text-sm tracking-widest hover:text-luxury-gold transition-colors">EXPERIENCES</a>
+                    <a href="#gallery" class="text-sm tracking-widest hover:text-luxury-gold transition-colors">GALLERY</a>
+                    <button class="magnetic-btn bg-luxury-gold text-luxury-dark px-6 py-2 text-sm tracking-widest font-semibold hover:bg-white transition-colors">
+                        BOOK NOW
+                    </button>
+                </div>
+                
+                <button id="mobile-menu-btn" class="md:hidden text-white">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 bg-luxury-dark z-40 transform translate-x-full transition-transform duration-500 md:hidden">
+        <div class="flex flex-col items-center justify-center h-full space-y-8">
+            <a href="#suites" class="text-2xl font-serif text-white hover:text-luxury-gold">Suites</a>
+            <a href="#dining" class="text-2xl font-serif text-white hover:text-luxury-gold">Dining</a>
+            <a href="#spa" class="text-2xl font-serif text-white hover:text-luxury-gold">Spa</a>
+            <a href="#experiences" class="text-2xl font-serif text-white hover:text-luxury-gold">Experiences</a>
+            <button class="bg-luxury-gold text-luxury-dark px-8 py-3 text-lg tracking-widest font-semibold">BOOK NOW</button>
+        </div>
+        <button id="close-menu" class="absolute top-6 right-6 text-white">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="relative h-screen overflow-hidden">
+        <video class="video-bg" autoplay muted loop playsinline>
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-luxury-hotel-pool-4372-large.mp4" type="video/mp4">
+        </video>
+        <div class="absolute inset-0 bg-black/40"></div>
+        
+        <div class="relative z-10 h-full flex flex-col justify-center items-center text-center px-6">
+            <p class="text-luxury-gold tracking-[0.3em] text-sm md:text-base mb-4 opacity-0" id="hero-subtitle">WELCOME TO PARADISE</p>
+            <h1 class="text-5xl md:text-8xl font-serif text-white mb-6 leading-tight">
+                <span class="block overflow-hidden">
+                    <span class="inline-block transform translate-y-full" id="hero-title-1">Serenity</span>
+                </span>
+                <span class="block overflow-hidden">
+                    <span class="inline-block transform translate-y-full" id="hero-title-2">Haven</span>
+                </span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-200 max-w-2xl mb-10 opacity-0" id="hero-desc">
+                Where luxury meets tranquility. Experience the art of refined hospitality in our boutique guest house.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 opacity-0" id="hero-cta">
+                <button class="magnetic-btn bg-luxury-gold text-luxury-dark px-8 py-4 text-sm tracking-widest font-semibold hover:bg-white transition-all duration-300">
+                    EXPLORE SUITES
+                </button>
+                <button class="magnetic-btn border-2 border-white text-white px-8 py-4 text-sm tracking-widest font-semibold hover:bg-white hover:text-luxury-dark transition-all duration-300">
+                    VIRTUAL TOUR
+                </button>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <i data-lucide="chevron-down" class="w-8 h-8 text-white/70"></i>
+        </div>
+    </section>
+
+    <!-- Booking Widget -->
+    <div class="relative z-20 -mt-20 container mx-auto px-6">
+        <div class="booking-widget rounded-2xl p-8 max-w-5xl mx-auto">
+            <form class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div>
+                    <label class="block text-xs tracking-widest text-gray-400 mb-2">CHECK IN</label>
+                    <input type="date" class="w-full bg-transparent border-b border-white/30 py-2 text-white focus:outline-none focus:border-luxury-gold transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs tracking-widest text-gray-400 mb-2">CHECK OUT</label>
+                    <input type="date" class="w-full bg-transparent border-b border-white/30 py-2 text-white focus:outline-none focus:border-luxury-gold transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs tracking-widest text-gray-400 mb-2">GUESTS</label>
+                    <select class="w-full bg-transparent border-b border-white/30 py-2 text-white focus:outline-none focus:border-luxury-gold transition-colors">
+                        <option class="bg-luxury-dark">1 Guest</option>
+                        <option class="bg-luxury-dark">2 Guests</option>
+                        <option class="bg-luxury-dark">3 Guests</option>
+                        <option class="bg-luxury-dark">4+ Guests</option>
+                    </select>
+                </div>
+                <button type="submit" class="bg-luxury-gold text-luxury-dark py-3 px-6 font-semibold tracking-widest hover:bg-white transition-colors">
+                    CHECK AVAILABILITY
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Introduction Section -->
+    <section class="py-32 px-6 relative overflow-hidden">
+        <div class="container mx-auto max-w-6xl">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="space-y-8">
+                    <p class="text-luxury-gold tracking-[0.3em] text-sm">OUR STORY</p>
+                    <h2 class="text-4xl md:text-6xl font-serif leading-tight reveal-text">
+                        A Sanctuary of<br>Elegance & Peace
+                    </h2>
+                    <p class="text-gray-300 text-lg leading-relaxed">
+                        Nestled in the heart of pristine nature, Serenity Haven Guest House offers an exclusive retreat for discerning travelers. Our 30 uniquely designed suites blend contemporary luxury with timeless charm, creating spaces that inspire relaxation and rejuvenation.
+                    </p>
+                    <p class="text-gray-300 text-lg leading-relaxed">
+                        From the moment you arrive, our dedicated team ensures every detail exceeds your expectations. Whether you seek adventure or tranquility, your perfect escape awaits.
+                    </p>
+                    <div class="flex gap-8 pt-4">
+                        <div>
+                            <p class="text-4xl font-serif text-luxury-gold">30</p>
+                            <p class="text-sm tracking-widest text-gray-400 mt-1">UNIQUE SUITES</p>
+                        </div>
+                        <div>
+                            <p class="text-4xl font-serif text-luxury-gold">5★</p>
+                            <p class="text-sm tracking-widest text-gray-400 mt-1">RATING</p>
+                        </div>
+                        <div>
+                            <p class="text-4xl font-serif text-luxury-gold">24/7</p>
+                            <p class="text-sm tracking-widest text-gray-400 mt-1">CONCIERGE</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="aspect-[3/4] overflow-hidden rounded-lg img-reveal" id="intro-img">
+                        <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80" alt="Luxury Suite Interior" class="w-full h-full object-cover hover:scale-110 transition-transform duration-700">
+                    </div>
+                    <div class="absolute -bottom-8 -left-8 w-48 h-48 bg-luxury-gold/20 rounded-lg -z-10"></div>
+                    <div class="absolute -top-8 -right-8 w-32 h-32 border-2 border-luxury-gold/30 rounded-lg -z-10"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Suites Showcase -->
+    <section id="suites" class="py-32 bg-luxury-charcoal relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-20">
+                <p class="text-luxury-gold tracking-[0.3em] text-sm mb-4">ACCOMMODATIONS</p>
+                <h2 class="text-4xl md:text-6xl font-serif mb-6">Our Signature Suites</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Each suite tells a unique story. Discover spaces crafted for the ultimate comfort and style.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Suite 1 -->
+                <div class="luxury-card group cursor-pointer" onclick="showSuiteDetail('garden')">
+                    <div class="relative overflow-hidden rounded-lg aspect-[4/5] mb-6">
+                        <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&q=80" alt="Garden View Suite" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="absolute bottom-0 left-0 p-6 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                            <p class="text-luxury-gold text-sm tracking-widest mb-2">FROM $350/NIGHT</p>
+                            <button class="text-white border-b border-luxury-gold pb-1 text-sm tracking-widest">VIEW DETAILS</button>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-serif mb-2">Garden View Suite</h3>
+                    <p class="text-gray-400 text-sm">45 m² • King Bed • Garden View</p>
+                </div>
+
+                <!-- Suite 2 -->
+                <div class="luxury-card group cursor-pointer" onclick="showSuiteDetail('ocean')">
+                    <div class="relative overflow-hidden rounded-lg aspect-[4/5] mb-6">
+                        <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=600&q=80" alt="Ocean Breeze Suite" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="absolute bottom-0 left-0 p-6 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                            <p class="text-luxury-gold text-sm tracking-widest mb-2">FROM $450/NIGHT</p>
+                            <button class="text-white border-b border-luxury-gold pb-1 text-sm tracking-widest">VIEW DETAILS</button>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-serif mb-2">Ocean Breeze Suite</h3>
+                    <p class="text-gray-400 text-sm">55 m² • King Bed • Ocean View</p>
+                </div>
+
+                <!-- Suite 3 -->
+                <div class="luxury-card group cursor-pointer" onclick="showSuiteDetail('penthouse')">
+                    <div class="relative overflow-hidden rounded-lg aspect-[4/5] mb-6">
+                        <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600&q=80" alt="Royal Penthouse" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="absolute bottom-0 left-0 p-6 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                            <p class="text-luxury-gold text-sm tracking-widest mb-2">FROM $850/NIGHT</p>
+                            <button class="text-white border-b border-luxury-gold pb-1 text-sm tracking-widest">VIEW DETAILS</button>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-serif mb-2">Royal Penthouse</h3>
+                    <p class="text-gray-400 text-sm">120 m² • 2 Bedrooms • Panoramic View</p>
+                </div>
+
+                <!-- Suite 4 -->
+                <div class="luxury-card group cursor-pointer" onclick="showSuiteDetail('spa')">
+                    <div class="relative overflow-hidden rounded-lg aspect-[4/5] mb-6">
+                        <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=600&q=80" alt="Spa Retreat Suite" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="absolute bottom-0 left-0 p-6 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                            <p class="text-luxury-gold text-sm tracking-widest mb-2">FROM $550/NIGHT</p>
+                            <button class="text-white border-b border-luxury-gold pb-1 text-sm tracking-widest">VIEW DETAILS</button>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-serif mb-2">Spa Retreat Suite</h3>
+                    <p class="text-gray-400 text-sm">65 m² • Private Jacuzzi • Mountain View</p>
+                </div>
+
+                <!-- Suite 5 -->
+                <div class="luxury-card group cursor-pointer" onclick="showSuiteDetail('family')">
+                    <div class="relative overflow-hidden rounded-lg aspect-[4/5] mb-6">
+                        <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=600&q=80" alt="Family Villa" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="absolute bottom-0 left-0 p-6 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                            <p class="text-luxury-gold text-sm tracking-widest mb-2">FROM $650/NIGHT</p>
+                            <button class="text-white border-b border-luxury-gold pb-1 text-sm tracking-widest">VIEW DETAILS</button>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-serif mb-2">Family Villa</h3>
+                    <p class="text-gray-400 text-sm">90 m² • 2 Bedrooms • Pool Access</p>
+                </div>
+
+                <!-- Suite 6 -->
+                <div class="luxury-card group cursor-pointer" onclick="showSuiteDetail('honeymoon')">
+                    <div class="relative overflow-hidden rounded-lg aspect-[4/5] mb-6">
+                        <img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=600&q=80" alt="Honeymoon Haven" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="absolute bottom-0 left-0 p-6 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                            <p class="text-luxury-gold text-sm tracking-widest mb-2">FROM $750/NIGHT</p>
+                            <button class="text-white border-b border-luxury-gold pb-1 text-sm tracking-widest">VIEW DETAILS</button>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-serif mb-2">Honeymoon Haven</h3>
+                    <p class="text-gray-400 text-sm">70 m² • Private Pool • Sunset View</p>
+                </div>
+            </div>
+
+            <div class="text-center mt-16">
+                <button class="magnetic-btn border-2 border-luxury-gold text-luxury-gold px-10 py-4 text-sm tracking-widest font-semibold hover:bg-luxury-gold hover:text-luxury-dark transition-all duration-300">
+                    VIEW ALL 30 SUITES
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Parallax Experience Section -->
+    <section class="relative h-[80vh] overflow-hidden">
+        <div class="parallax-container h-full">
+            <img src="https://images.unsplash.com/photo-1540541338287-41700207dee6?w=1920&q=80" alt="Infinity Pool" class="absolute inset-0 w-full h-full object-cover" id="parallax-img">
+            <div class="absolute inset-0 bg-black/50"></div>
+            <div class="absolute inset-0 flex items-center justify-center text-center px-6">
+                <div>
+                    <p class="text-luxury-gold tracking-[0.3em] text-sm mb-4">UNWIND</p>
+                    <h2 class="text-5xl md:text-7xl font-serif mb-6">Infinity Pool &<br>Wellness Center</h2>
+                    <p class="text-xl text-gray-200 max-w-2xl mx-auto mb-8">Dive into crystal-clear waters that blend seamlessly with the horizon. Our award-winning wellness facilities await.</p>
+                    <button class="magnetic-btn bg-white text-luxury-dark px-8 py-4 text-sm tracking-widest font-semibold hover:bg-luxury-gold transition-colors">
+                        EXPLORE AMENITIES
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dining Experience -->
+    <section id="dining" class="py-32 px-6">
+        <div class="container mx-auto max-w-7xl">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-32">
+                <div class="order-2 lg:order-1">
+                    <div class="grid grid-cols-2 gap-4">
+                        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80" alt="Restaurant Interior" class="rounded-lg w-full h-64 object-cover">
+                        <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80" alt="Gourmet Dish" class="rounded-lg w-full h-64 object-cover mt-8">
+                        <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&q=80" alt="Cocktail Bar" class="rounded-lg w-full h-64 object-cover -mt-8">
+                        <img src="https://images.unsplash.com/photo-1550966871-3ed3c47e2ce2?w=400&q=80" alt="Breakfast Spread" class="rounded-lg w-full h-64 object-cover">
+                    </div>
+                </div>
+                <div class="order-1 lg:order-2 space-y-6">
+                    <p class="text-luxury-gold tracking-[0.3em] text-sm">CULINARY EXCELLENCE</p>
+                    <h2 class="text-4xl md:text-5xl font-serif">Farm-to-Table<br>Dining Experience</h2>
+                    <p class="text-gray-300 text-lg leading-relaxed">
+                        Savor exquisite cuisine crafted by our Michelin-starred chef. Using locally-sourced organic ingredients, each dish tells a story of the region's rich culinary heritage.
+                    </p>
+                    <ul class="space-y-4 text-gray-300">
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-luxury-gold"></i>
+                            <span>Award-winning restaurant with panoramic views</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-luxury-gold"></i>
+                            <span>Private dining rooms for intimate occasions</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-luxury-gold"></i>
+                            <span>24-hour in-suite dining service</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-5 h-5 text-luxury-gold"></i>
+                            <span>Curated wine cellar with 500+ labels</span>
+                        </li>
+                    </ul>
+                    <button class="magnetic-btn bg-luxury-gold text-luxury-dark px-8 py-4 text-sm tracking-widest font-semibold hover:bg-white transition-colors mt-4">
+                        VIEW MENUS
+                    </button>
+                </div>
+            </div>
+
+            <!-- Restaurant Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="tilt-card bg-luxury-charcoal rounded-xl overflow-hidden group">
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80" alt="The Garden Terrace" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    </div>
+                    <div class="p-6 tilt-content">
+                        <h3 class="text-xl font-serif mb-2">The Garden Terrace</h3>
+                        <p class="text-gray-400 text-sm mb-4">Al fresco dining surrounded by lush botanical gardens. Open for breakfast and lunch.</p>
+                        <span class="text-luxury-gold text-sm tracking-widest">7AM - 4PM</span>
+                    </div>
+                </div>
+
+                <div class="tilt-card bg-luxury-charcoal rounded-xl overflow-hidden group">
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=600&q=80" alt="The Sunset Lounge" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    </div>
+                    <div class="p-6 tilt-content">
+                        <h3 class="text-xl font-serif mb-2">The Sunset Lounge</h3>
+                        <p class="text-gray-400 text-sm mb-4">Craft cocktails and tapas with breathtaking sunset views. Live jazz on weekends.</p>
+                        <span class="text-luxury-gold text-sm tracking-widest">4PM - 12AM</span>
+                    </div>
+                </div>
+
+                <div class="tilt-card bg-luxury-charcoal rounded-xl overflow-hidden group">
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1550966871-3ed3c47e2ce2?w=600&q=80" alt="The Chef's Table" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    </div>
+                    <div class="p-6 tilt-content">
+                        <h3 class="text-xl font-serif mb-2">The Chef's Table</h3>
+                        <p class="text-gray-400 text-sm mb-4">Intimate 12-seat exclusive dining experience. Tasting menu with wine pairing.</p>
+                        <span class="text-luxury-gold text-sm tracking-widest">RESERVATION ONLY</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Spa & Wellness -->
+    <section id="spa" class="py-32 bg-gradient-to-b from-luxury-charcoal to-luxury-dark relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full opacity-10">
+            <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1920&q=80" alt="Spa Background" class="w-full h-full object-cover">
+        </div>
+        
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="text-center mb-20">
+                <p class="text-luxury-gold tracking-[0.3em] text-sm mb-4">REJUVENATION</p>
+                <h2 class="text-4xl md:text-6xl font-serif mb-6">Spa & Wellness Sanctuary</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Restore balance to your mind, body, and spirit in our award-winning wellness center.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="group relative overflow-hidden rounded-lg aspect-[3/4] cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&q=80" alt="Massage Therapy" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-6">
+                        <h3 class="text-xl font-serif mb-2">Therapeutic Massage</h3>
+                        <p class="text-gray-300 text-sm mb-3">Swedish, Deep Tissue, Hot Stone</p>
+                        <span class="text-luxury-gold text-sm">From $120</span>
+                    </div>
+                </div>
+
+                <div class="group relative overflow-hidden rounded-lg aspect-[3/4] cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=400&q=80" alt="Facial Treatment" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-6">
+                        <h3 class="text-xl font-serif mb-2">Luxury Facials</h3>
+                        <p class="text-gray-300 text-sm mb-3">Anti-aging, Hydrating, Brightening</p>
+                        <span class="text-luxury-gold text-sm">From $150</span>
+                    </div>
+                </div>
+
+                <div class="group relative overflow-hidden rounded-lg aspect-[3/4] cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1507652313519-d4e9174996dd?w=400&q=80" alt="Yoga Class" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-6">
+                        <h3 class="text-xl font-serif mb-2">Sunrise Yoga</h3>
+                        <p class="text-gray-300 text-sm mb-3">Daily sessions at our oceanfront pavilion</p>
+                        <span class="text-luxury-gold text-sm">Complimentary</span>
+                    </div>
+                </div>
+
+                <div class="group relative overflow-hidden rounded-lg aspect-[3/4] cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1600334129128-685c5582fd35?w=400&q=80" alt="Hydrotherapy" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-6">
+                        <h3 class="text-xl font-serif mb-2">Hydrotherapy</h3>
+                        <p class="text-gray-300 text-sm mb-3">Sauna, Steam Room, Plunge Pools</p>
+                        <span class="text-luxury-gold text-sm">From $80</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-16 text-center">
+                <button class="magnetic-btn border-2 border-white text-white px-10 py-4 text-sm tracking-widest font-semibold hover:bg-white hover:text-luxury-dark transition-all duration-300">
+                    BOOK TREATMENT
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experiences -->
+    <section id="experiences" class="py-32 px-6">
+        <div class="container mx-auto max-w-7xl">
+            <div class="text-center mb-20">
+                <p class="text-luxury-gold tracking-[0.3em] text-sm mb-4">ADVENTURE</p>
+                <h2 class="text-4xl md:text-6xl font-serif mb-6">Curated Experiences</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Discover the hidden gems of our region with our bespoke activity packages.</p>
+            </div>
+
+            <div class="space-y-24">
+                <!-- Experience 1 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div class="relative overflow-hidden rounded-lg aspect-video group">
+                        <img src="https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=800&q=80" alt="Private Yacht" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors duration-500"></div>
+                        <button class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                            <i data-lucide="play" class="w-8 h-8 text-white ml-1"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-6">
+                        <span class="text-luxury-gold tracking-widest text-sm">EXCLUSIVE</span>
+                        <h3 class="text-3xl md:text-4xl font-serif">Private Yacht Charter</h3>
+                        <p class="text-gray-300 text-lg leading-relaxed">
+                            Sail the crystal-clear waters aboard our luxury yacht. Includes gourmet catering, snorkeling equipment, and a dedicated crew for a day of ultimate indulgence.
+                        </p>
+                        <ul class="space-y-2 text-gray-400">
+                            <li class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-luxury-gold"></i> Full day experience (8 hours)</li>
+                            <li class="flex items-center gap-2"><i data-lucide="users" class="w-4 h-4 text-luxury-gold"></i> Up to 12 guests</li>
+                            <li class="flex items-center gap-2"><i data-lucide="utensils" class="w-4 h-4 text-luxury-gold"></i> Champagne lunch included</li>
+                        </ul>
+                        <button class="magnetic-btn bg-luxury-gold text-luxury-dark px-8 py-3 text-sm tracking-widest font-semibold hover:bg-white transition-colors">
+                            INQUIRE NOW
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Experience 2 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div class="order-2 lg:order-1 space-y-6">
+                        <span class="text-luxury-gold tracking-widest text-sm">CULINARY</span>
+                        <h3 class="text-3xl md:text-4xl font-serif">Private Cooking Class</h3>
+                        <p class="text-gray-300 text-lg leading-relaxed">
+                            Learn the secrets of local cuisine from our executive chef. Visit the morning market, select fresh ingredients, and master the art of regional specialties.
+                        </p>
+                        <ul class="space-y-2 text-gray-400">
+                            <li class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-luxury-gold"></i> Half day experience (4 hours)</li>
+                            <li class="flex items-center gap-2"><i data-lucide="users" class="w-4 h-4 text-luxury-gold"></i> Private or group sessions</li>
+                            <li class="flex items-center gap-2"><i data-lucide="wine" class="w-4 h-4 text-luxury-gold"></i> Wine pairing included</li>
+                        </ul>
+                        <button class="magnetic-btn bg-luxury-gold text-luxury-dark px-8 py-3 text-sm tracking-widest font-semibold hover:bg-white transition-colors">
+                            INQUIRE NOW
+                        </button>
+                    </div>
+                    <div class="order-1 lg:order-2 relative overflow-hidden rounded-lg aspect-video group">
+                        <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&q=80" alt="Cooking Class" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                    </div>
+                </div>
+
+                <!-- Experience 3 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div class="relative overflow-hidden rounded-lg aspect-video group">
+                        <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&q=80" alt="Hiking Adventure" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                    </div>
+                    <div class="space-y-6">
+                        <span class="text-luxury-gold tracking-widest text-sm">ADVENTURE</span>
+                        <h3 class="text-3xl md:text-4xl font-serif">Guided Mountain Trek</h3>
+                        <p class="text-gray-300 text-lg leading-relaxed">
+                            Explore hidden trails and breathtaking vistas with our expert guides. Suitable for all fitness levels, from gentle nature walks to challenging summit hikes.
+                        </p>
+                        <ul class="space-y-2 text-gray-400">
+                            <li class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-luxury-gold"></i> Flexible duration</li>
+                            <li class="flex items-center gap-2"><i data-lucide="users" class="w-4 h-4 text-luxury-gold"></i> Private guide</li>
+                            <li class="flex items-center gap-2"><i data-lucide="camera" class="w-4 h-4 text-luxury-gold"></i> Photography stops</li>
+                        </ul>
+                        <button class="magnetic-btn bg-luxury-gold text-luxury-dark px-8 py-3 text-sm tracking-widest font-semibold hover:bg-white transition-colors">
+                            INQUIRE NOW
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="py-32 bg-luxury-charcoal">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <p class="text-luxury-gold tracking-[0.3em] text-sm mb-4">MOMENTS</p>
+                <h2 class="text-4xl md:text-6xl font-serif mb-6">Gallery</h2>
+            </div>
+
+            <div class="masonry-grid">
+                <div class="relative group overflow-hidden rounded-lg break-inside-avoid mb-5">
+                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80" alt="Pool at sunset" class="w-full h-auto object-cover group-hover:scale-110 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <i data-lucide="zoom-in" class="w-8 h-8 text-white"></i>
+                    </div>
+                </div>
+                <div class="relative group overflow-hidden rounded-lg break-inside-avoid mb-5">
+                    <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&q=80" alt="Luxury bedroom" class="w-full h-auto object-cover group-hover:scale-110 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <i data-lucide="zoom-in" class="w-8 h-8 text-white"></i>
+                    </div>
+                </div>
+                <div class="relative group overflow-hidden rounded-lg break-inside-avoid mb-5">
+                    <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=80" alt="Resort exterior" class="w-full h-auto object-cover group-hover:scale-110 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <i data-lucide="zoom-in" class="w-8 h-8 text-white"></i>
+                    </div>
+                </div>
+                <div class="relative group overflow-hidden rounded-lg break-inside-avoid mb-5">
+                    <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600&q=80" alt="Hotel lobby" class="w-full h-auto object-cover group-hover:scale-110 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <i data-lucide="zoom-in" class="w-8 h-8 text-white"></i>
+                    </div>
+                </div>
+                <div class="relative group overflow-hidden rounded-lg break-inside-avoid mb-5">
+                    <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&q=80" alt="Spa treatment" class="w-full h-auto object-cover group-hover:scale-110 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <i data-lucide="zoom-in" class="w-8 h-8 text-white"></i>
+                    </div>
+                </div>
+                <div class="relative group overflow-hidden rounded-lg break-inside-avoid mb-5">
+                    <img src="https://images.unsplash.com/photo-1596178060671-7a80dc8059ea?w=600&q=80" alt="Fine dining" class="w-full h-auto object-cover group-hover:scale-110 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <i data-lucide="zoom-in" class="w-8 h-8 text-white"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12">
+                <button class="magnetic-btn border-2 border-luxury-gold text-luxury-gold px-10 py-4 text-sm tracking-widest font-semibold hover:bg-luxury-gold hover:text-luxury-dark transition-all duration-300">
+                    VIEW FULL GALLERY
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-32 px-6 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-20">
+            <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1920&q=80" alt="Background" class="w-full h-full object-cover">
+        </div>
+        
+        <div class="container mx-auto max-w-4xl relative z-10">
+            <div class="text-center mb-16">
+                <p class="text-luxury-gold tracking-[0.3em] text-sm mb-4">TESTIMONIALS</p>
+                <h2 class="text-4xl md:text-5xl font-serif">Guest Experiences</h2>
+            </div>
+
+            <div class="relative" id="testimonial-slider">
+                <div class="testimonial-slide active text-center">
+                    <div class="flex justify-center mb-6">
+                        <i data-lucide="star" class="w-6 h-6 text-luxury-gold fill-current"></i>
+                        <i data-lucide="star" class="w-6 h-6 text-luxury-gold fill-current"></i>
+                        <i data-lucide="star" class="w-6 h-6 text-luxury-gold fill-current"></i>
+                        <i data-lucide="star" class="w-6 h-6 text-luxury-gold fill-current"></i>
+                        <i data-lucide="star" class="w-6 h-6 text-luxury-gold fill-current"></i>
+                    </div>
+                    <p class="text-2xl md:text-3xl font-serif italic mb-8 leading-relaxed">
+                        "An absolutely magical experience. The attention to detail, the stunning views, and the impeccable service made our anniversary truly unforgettable. We can't wait to return."
+                    </p>
+                    <div class="flex items-center justify-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80" alt="Sarah M." class="w-16 h-16 rounded-full object-cover">
+                        <div class="text-left">
+                            <p class="font-semibold text-lg">Sarah Mitchell</p>
+                            <p class="text-gray-400 text-sm">London, UK</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-2 mt-8">
+                <button class="w-3 h-3 rounded-full bg-luxury-gold"></button>
+                <button class="w-3 h-3 rounded-full bg-gray-600 hover:bg-luxury-gold transition-colors"></button>
+                <button class="w-3 h-3 rounded-full bg-gray-600 hover:bg-luxury-gold transition-colors"></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="py-24 bg-luxury-gold">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl md:text-4xl font-serif text-luxury-dark mb-4">Join Our Inner Circle</h2>
+            <p class="text-luxury-dark/80 mb-8 max-w-2xl mx-auto">Subscribe for exclusive offers, seasonal packages, and insider access to special events.</p>
+            <form class="max-w-md mx-auto flex gap-4">
+                <input type="email" placeholder="Your email address" class="flex-1 px-6 py-3 bg-white/90 text-luxury-dark placeholder-luxury-dark/50 focus:outline-none focus:ring-2 focus:ring-luxury-dark">
+                <button type="submit" class="bg-luxury-dark text-white px-8 py-3 font-semibold tracking-widest hover:bg-black transition-colors">
+                    SUBSCRIBE
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-luxury-dark border-t border-white/10 pt-20 pb-10">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                <div>
+                    <h3 class="text-2xl font-serif text-luxury-gold mb-6">SERENITY HAVEN</h3>
+                    <p class="text-gray-400 mb-6">Where luxury meets tranquility. Experience the art of refined hospitality.</p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-luxury-gold hover:border-luxury-gold hover:text-luxury-dark transition-all">
+                            <i data-lucide="instagram" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-luxury-gold hover:border-luxury-gold hover:text-luxury-dark transition-all">
+                            <i data-lucide="facebook" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-luxury-gold hover:border-luxury-gold hover:text-luxury-dark transition-all">
+                            <i data-lucide="twitter" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-6 tracking-widest">EXPLORE</h4>
+                    <ul class="space-y-3 text-gray-400">
+                        <li><a href="#" class="hover:text-luxury-gold transition-colors">Our Story</a></li>
+                        <li><a href="#" class="hover:text-luxury-gold transition-colors">Suites & Villas</a></li>
+                        <li><a href="#" class="hover:text-luxury-gold transition-colors">Dining</a></li>
+                        <li><a href="#" class="hover:text-luxury-gold transition-colors">Spa & Wellness</a></li>
+                        <li><a href="#" class="hover:text-luxury-gold transition-colors">Experiences</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-6 tracking-widest">CONTACT</h4>
+                    <ul class="space-y-3 text-gray-400">
+                        <li class="flex items-start gap-3">
+                            <i data-lucide="map-pin" class="w-5 h-5 text-luxury-gold mt-1"></i>
+                            <span>123 Paradise Lane<br>Coastal Region, CR 12345</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="phone" class="w-5 h-5 text-luxury-gold"></i>
+                            <span>+1 (555) 123-4567</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="mail" class="w-5 h-5 text-luxury-gold"></i>
+                            <span>reservations@serenityhaven.com</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-6 tracking-widest">AWARDS</h4>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="award" class="w-8 h-8 text-luxury-gold"></i>
+                            <div>
+                                <p class="font-semibold">Forbes 5-Star</p>
+                                <p class="text-sm text-gray-400">2020-2024</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="star" class="w-8 h-8 text-luxury-gold"></i>
+                            <div>
+                                <p class="font-semibold">AAA Diamond</p>
+                                <p class="text-sm text-gray-400">Rated Excellence</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-gray-500 text-sm">&copy; 2024 Serenity Haven Guest House. All rights reserved.</p>
+                <div class="flex gap-6 text-sm text-gray-500">
+                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+                    <a href="#" class="hover:text-white transition-colors">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Suite Detail Modal -->
+    <div id="suite-modal" class="fixed inset-0 bg-black/90 z-50 hidden opacity-0 transition-opacity duration-300">
+        <button onclick="closeSuiteModal()" class="absolute top-6 right-6 text-white hover:text-luxury-gold transition-colors z-10">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+        <div class="h-full overflow-y-auto p-6 md:p-12">
+            <div class="max-w-6xl mx-auto" id="modal-content">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Lenis Smooth Scroll
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            smooth: true,
+            mouseMultiplier: 1,
+            smoothTouch: false,
+            touchMultiplier: 2,
+            infinite: false,
+        });
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // GSAP ScrollTrigger Integration with Lenis
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => {
+            lenis.raf(time * 1000);
+        });
+        gsap.ticker.lagSmoothing(0);
+
+        // Loader
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            const loaderBar = document.getElementById('loader-bar');
+            
+            gsap.to(loaderBar, {
+                width: '100%',
+                duration: 1.5,
+                ease: 'power2.inOut',
+                onComplete: () => {
+                    gsap.to(loader, {
+                        opacity: 0,
+                        duration: 0.8,
+                        onComplete: () => {
+                            loader.classList.add('hidden');
+                            initAnimations();
+                        }
+                    });
+                }
+            });
+        });
+
+        // Custom Cursor
+        const cursor = document.getElementById('cursor');
+        const cursorDot = document.getElementById('cursor-dot');
+        
+        if (window.matchMedia('(pointer: fine)').matches) {
+            document.addEventListener('mousemove', (e) => {
+                gsap.to(cursor, {
+                    x: e.clientX - 10,
+                    y: e.clientY - 10,
+                    duration: 0.1
+                });
+                gsap.to(cursorDot, {
+                    x: e.clientX - 2,
+                    y: e.clientY - 2,
+                    duration: 0.5
+                });
+            });
+
+            // Magnetic effect for buttons
+            document.querySelectorAll('.magnetic-btn').forEach(btn => {
+                btn.addEventListener('mousemove', (e) => {
+                    const rect = btn.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width / 2;
+                    const y = e.clientY - rect.top - rect.height / 2;
+                    
+                    gsap.to(btn, {
+                        x: x * 0.3,
+                        y: y * 0.3,
+                        duration: 0.3
+                    });
+                });
+                
+                btn.addEventListener('mouseleave', () => {
+                    gsap.to(btn, {
+                        x: 0,
+                        y: 0,
+                        duration: 0.3
+                    });
+                });
+            });
+        }
+
+        // Scroll Progress
+        gsap.to('#scroll-progress', {
+            scaleX: 1,
+            ease: 'none',
+            scrollTrigger: {
+                trigger: document.body,
+                start: 'top top',
+                end: 'bottom bottom',
+                scrub: 0.3
+            }
+        });
+
+        // Navigation Show/Hide
+        let lastScroll = 0;
+        const nav = document.getElementById('main-nav');
+        
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll > 100) {
+                if (currentScroll > lastScroll) {
+                    nav.classList.add('nav-hidden');
+                    nav.classList.remove('nav-visible');
+                } else {
+                    nav.classList.remove('nav-hidden');
+                    nav.classList.add('nav-visible');
+                }
+            } else {
+                nav.classList.add('nav-hidden');
+                nav.classList.remove('nav-visible');
+            }
+            
+            lastScroll = currentScroll;
+        }, { passive: true });
+
+        // Mobile Menu
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const closeMenuBtn = document.getElementById('close-menu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.remove('translate-x-full');
+        });
+
+        closeMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.add('translate-x-full');
+        });
+
+        // Initialize Animations
+        function initAnimations() {
+            // Hero Animations
+            const heroTl = gsap.timeline();
+            
+            heroTl.to('#hero-subtitle', {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                delay: 0.5
+            })
+            .to('#hero-title-1', {
+                y: 0,
+                duration: 1.2,
+                ease: 'power4.out'
+            }, '-=0.5')
+            .to('#hero-title-2', {
+                y: 0,
+                duration: 1.2,
+                ease: 'power4.out'
+            }, '-=1')
+            .to('#hero-desc', {
+                opacity: 1,
+                y: 0,
+                duration: 1
+            }, '-=0.8')
+            .to('#hero-cta', {
+                opacity: 1,
+                y: 0,
+                duration: 1
+            }, '-=0.6');
+
+            // Intro Image Reveal
+            gsap.to('#intro-img', {
+                clipPath: 'inset(0 0 0 0)',
+                duration: 1.5,
+                ease: 'power4.inOut',
+                scrollTrigger: {
+                    trigger: '#intro-img',
+                    start: 'top 80%',
+                    toggleActions: 'play none none reverse'
+                }
+            });
+
+            // Parallax Effect
+            gsap.to('#parallax-img', {
+                yPercent: 30,
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: '.parallax-container',
+                    start: 'top bottom',
+                    end: 'bottom top',
+                    scrub: true
+                }
+            });
+
+            // Suite Cards Stagger
+            gsap.from('.luxury-card', {
+                y: 100,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.2,
+                ease: 'power4.out',
+                scrollTrigger: {
+                    trigger: '#suites',
+                    start: 'top 70%'
+                }
+            });
+
+            // Text Reveals
+            gsap.utils.toArray('.reveal-text').forEach(text => {
+                gsap.from(text, {
+                    y: 50,
+                    opacity: 0,
+                    duration: 1,
+                    ease: 'power4.out',
+                    scrollTrigger: {
+                        trigger: text,
+                        start: 'top 85%'
+                    }
+                });
+            });
+
+            // 3D Tilt Effect for Cards
+            document.querySelectorAll('.tilt-card').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    const rotateX = (y - centerY) / 10;
+                    const rotateY = (centerX - x) / 10;
+                    
+                    gsap.to(card, {
+                        rotateX: rotateX,
+                        rotateY: rotateY,
+                        duration: 0.5,
+                        ease: 'power2.out'
+                    });
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    gsap.to(card, {
+                        rotateX: 0,
+                        rotateY: 0,
+                        duration: 0.5
+                    });
+                });
+            });
+        }
+
+        // Suite Detail Modal
+        const suiteData = {
+            garden: {
+                title: 'Garden View Suite',
+                price: '$350',
+                image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1200&q=80',
+                description: 'Immerse yourself in lush botanical surroundings with floor-to-ceiling windows overlooking our manicured gardens.',
+                amenities: ['King-size bed with Egyptian cotton linens', 'Private balcony with garden views', 'Marble bathroom with rain shower', 'Nespresso coffee machine', 'Smart TV with streaming services', 'High-speed WiFi'],
+                size: '45 m²',
+                guests: '2 Adults'
+            },
+            ocean: {
+                title: 'Ocean Breeze Suite',
+                price: '$450',
+                image: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=1200&q=80',
+                description: 'Wake up to the sound of waves in this stunning suite featuring panoramic ocean views and premium amenities.',
+                amenities: ['King-size bed with premium mattress', 'Oceanfront private terrace', 'Deep soaking tub with ocean view', 'Separate living area', 'Mini bar with premium selections', 'Bose sound system'],
+                size: '55 m²',
+                guests: '2 Adults + 1 Child'
+            },
+            penthouse: {
+                title: 'Royal Penthouse',
+                price: '$850',
+                image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1200&q=80',
+                description: 'The pinnacle of luxury living. Our Royal Penthouse offers unmatched elegance with 360-degree panoramic views.',
+                amenities: ['2 Bedrooms with king beds', 'Private rooftop terrace with pool', 'Personal butler service', 'Fully equipped kitchen', 'Private cinema room', 'In-room spa treatments available'],
+                size: '120 m²',
+                guests: '4 Adults'
+            },
+            spa: {
+                title: 'Spa Retreat Suite',
+                price: '$550',
+                image: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=1200&q=80',
+                description: 'Designed for ultimate relaxation with in-suite jacuzzi and direct access to our wellness center.',
+                amenities: ['King-size bed with wellness mattress', 'Private jacuzzi on terrace', 'Infrared sauna access', 'Yoga mat and meditation cushions', 'Aromatherapy diffuser', 'Organic bath amenities'],
+                size: '65 m²',
+                guests: '2 Adults'
+            },
+            family: {
+                title: 'Family Villa',
+                price: '$650',
+                image: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1200&q=80',
+                description: 'Spacious villa perfect for families, featuring separate kids area and shared pool access.',
+                amenities: ['2 Bedrooms (1 king, 1 twin)', 'Kids gaming corner', 'Shared heated pool access', 'Kitchenette with microwave', 'High chair and crib available', 'Family-friendly entertainment'],
+                size: '90 m²',
+                guests: '2 Adults + 2 Children'
+            },
+            honeymoon: {
+                title: 'Honeymoon Haven',
+                price: '$750',
+                image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1200&q=80',
+                description: 'Romantic seclusion with private infinity pool, perfect for couples celebrating love.',
+                amenities: ['Four-poster king bed', 'Private infinity pool', 'Outdoor rain shower', 'Champagne welcome package', 'Couples massage included', 'Sunset viewing deck'],
+                size: '70 m²',
+                guests: '2 Adults'
+            }
+        };
+
+        function showSuiteDetail(suiteType) {
+            const modal = document.getElementById('suite-modal');
+            const content = document.getElementById('modal-content');
+            const suite = suiteData[suiteType];
+            
+            content.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <div class="space-y-6">
+                        <img src="${suite.image}" alt="${suite.title}" class="w-full rounded-lg shadow-2xl">
+                        <div class="grid grid-cols-3 gap-4">
+                            <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=200&q=80" class="rounded-lg cursor-pointer hover:opacity-80 transition-opacity">
+                            <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=200&q=80" class="rounded-lg cursor-pointer hover:opacity-80 transition-opacity">
+                            <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&q=80" class="rounded-lg cursor-pointer hover:opacity-80 transition-opacity">
+                        </div>
+                    </div>
+                    <div class="space-y-8">
+                        <div>
+                            <h2 class="text-4xl md:text-5xl font-serif mb-2">${suite.title}</h2>
+                            <p class="text-luxury-gold text-2xl font-serif">${suite.price}<span class="text-gray-400 text-base font-sans">/night</span></p>
+                        </div>
+                        <p class="text-gray-300 text-lg leading-relaxed">${suite.description}</p>
+                        <div class="flex gap-8 text-sm">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="maximize" class="w-5 h-5 text-luxury-gold"></i>
+                                <span>${suite.size}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="users" class="w-5 h-5 text-luxury-gold"></i>
+                                <span>${suite.guests}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-serif mb-4">Amenities</h3>
+                            <ul class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                ${suite.amenities.map(amenity => `
+                                    <li class="flex items-center gap-2 text-gray-300">
+                                        <i data-lucide="check" class="w-4 h-4 text-luxury-gold"></i>
+                                        <span>${amenity}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        <div class="flex gap-4 pt-4">
+                            <button class="flex-1 bg-luxury-gold text-luxury-dark py-4 font-semibold tracking-widest hover:bg-white transition-colors">
+                                BOOK NOW
+                            </button>
+                            <button class="px-6 border border-white/30 hover:border-luxury-gold hover:text-luxury-gold transition-colors">
+                                <i data-lucide="heart" class="w-6 h-6"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            lucide.createIcons();
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSuiteModal() {
+            const modal = document.getElementById('suite-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        // WebGL Background Effect (Simplified for performance)
+        const canvas = document.getElementById('webgl-canvas');
+        const isMobile = window.matchMedia('(pointer: coarse)').matches;
+        
+        if (!isMobile && window.THREE) {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            
+            // Create particles
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 25;
+            const posArray = new Float32Array(particlesCount * 3);
+            
+            for(let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 10;
+            }
+            
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.02,
+                color: 0xD4AF37,
+                transparent: true,
+                opacity: 0.6
+            });
+            
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+            
+            camera.position.z = 3;
+            
+            let mouseX = 0;
+            let mouseY = 0;
+            
+            document.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+            });
+            
+            let isActive = true;
+            const observer = new IntersectionObserver((entries) => {
+                isActive = entries[0].isIntersecting;
+            });
+            observer.observe(canvas);
+            
+            function animate() {
+                if (!isActive) {
+                    requestAnimationFrame(animate);
+                    return;
+                }
+                
+                particlesMesh.rotation.x += 0.0005;
+                particlesMesh.rotation.y += 0.0005;
+                
+                particlesMesh.rotation.x += mouseY * 0.0005;
+                particlesMesh.rotation.y += mouseX * 0.0005;
+                
+                renderer.render(scene, camera);
+                requestAnimationFrame(animate);
+            }
+            animate();
+            
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeSuiteModal();
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    lenis.scrollTo(target);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
